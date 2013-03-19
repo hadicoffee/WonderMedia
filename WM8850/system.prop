@@ -1,0 +1,8 @@
+#
+# system.prop for nsfat
+#
+persist.sys.usb.config=mtp
+
+ril.libpath=/system/lib/libreference-ril.so
+ril.libargs=-d /dev/tty*
+#
