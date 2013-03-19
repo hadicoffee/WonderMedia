@@ -9,13 +9,13 @@ DEVICE_PACKAGE_OVERLAYS += device/WonderMedia/WM8850/overlay
 
 LOCAL_PATH := device/WonderMedia/WM8850
 ifeq ($(TARGET_PREBUILT_KERNEL),)
-	LOCAL_KERNEL := $(LOCAL_PATH)/kernel
+	LOCAL_KERNEL := $(LOCAL_PATH)/kernel/kernel
 else
 	LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
 endif
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_KERNEL):kernel
+    $(LOCAL_KERNEL):kernel/kernel
 
 $(call inherit-product, build/target/product/full.mk)
 
