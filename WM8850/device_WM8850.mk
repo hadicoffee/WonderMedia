@@ -3,7 +3,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
-$(call inherit-product-if-exists, vendor/WonderMedia/WM8850/nsfat-vendor.mk)
+$(call inherit-product-if-exists, vendor/WonderMedia/WM8850/WM8850-vendor.mk)
 
 DEVICE_PACKAGE_OVERLAYS += device/WonderMedia/WM8850/overlay
 
