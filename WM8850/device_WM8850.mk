@@ -3,11 +3,11 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
-$(call inherit-product-if-exists, vendor/WonderMedia/nsfat/nsfat-vendor.mk)
+$(call inherit-product-if-exists, vendor/WonderMedia/WM8850/nsfat-vendor.mk)
 
-DEVICE_PACKAGE_OVERLAYS += device/WonderMedia/nsfat/overlay
+DEVICE_PACKAGE_OVERLAYS += device/WonderMedia/WM8850/overlay
 
-LOCAL_PATH := device/WonderMedia/nsfat
+LOCAL_PATH := device/WonderMedia/WM8850
 ifeq ($(TARGET_PREBUILT_KERNEL),)
 	LOCAL_KERNEL := $(LOCAL_PATH)/kernel
 else
@@ -20,5 +20,5 @@ PRODUCT_COPY_FILES += \
 $(call inherit-product, build/target/product/full.mk)
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-PRODUCT_NAME := full_nsfat
-PRODUCT_DEVICE := nsfat
+PRODUCT_NAME := full_WM8850
+PRODUCT_DEVICE := WM8850
