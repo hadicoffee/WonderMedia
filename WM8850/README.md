@@ -10,7 +10,6 @@ paste these lines inside new file .repo/local_manifest.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <!-- remote  name="github" fetch="git://github.com/" /-->
-  <remove-project name="CyanogenMod/android_system_vold"/>
   <project remote="github" revision="cm-10.1" name="hadicoffee/WonderMedia/WM8850" path="device/WonderMedia/WM8850" />
 </manifest>
 
