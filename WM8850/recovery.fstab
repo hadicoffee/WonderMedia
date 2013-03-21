@@ -1,4 +1,4 @@
-# mount point         fstype    device    	[device2]
+# mount point         fstype    device    	    [device2]
 /boot			emmc		/dev/block/mtdblock7
 /cache			ext4		/dev/block/mtdblock11
 /data			ext4		/dev/block/mtdblock12
