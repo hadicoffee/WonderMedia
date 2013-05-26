@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-add_lunch_combo full_WM8850-eng
+add_lunch_combo full_WM8850-userdebug
