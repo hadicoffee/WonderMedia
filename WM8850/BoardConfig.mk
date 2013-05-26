@@ -19,6 +19,23 @@ BOARD_KERNEL_CMDLINE :=
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_PAGESIZE := 2048
 
+
+#TWRP recovery
+BOARD_HAS_SDCARD_INTERNAL := true
+TARGET_RECOVERY_INITRC := device/WonderMedia/WM8850/init-twrp.rc
+TARGET_RECOVERY_PIXEL_FORMAT := "RGB565"
+DEVICE_RESOLUTION := 800x480
+TW_FLASH_FROM_STORAGE := true
+TW_NO_REBOOT_BOOTLOADER := true
+#TWRP_EVENT_LOGGING := true
+TW_INTERNAL_STORAGE_PATH := "/emmc"
+TW_INTERNAL_STORAGE_MOUNT_POINT := "emmc"
+TW_EXTERNAL_STORAGE_PATH := "/sdcard"
+TW_EXTERNAL_STORAGE_MOUNT_POINT := "sdcard"
+BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun/file"
+#BOARD_UMS_2ND_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun1/file"
+
+
 # fix this up by examining /proc/mtd on a running device
 BOARD_BOOTIMAGE_PARTITION_SIZE := 0x105c0000
 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x105c0000
