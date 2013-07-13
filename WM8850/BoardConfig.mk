@@ -13,7 +13,8 @@ ARCH_ARM_HAVE_TLS_REGISTER := true
 
 TARGET_BOOTLOADER_BOARD_NAME := WM8850
 
-BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/WonderMedia/WM8850/recovery/recovery_keys.c
+# Konfigurasi CWM Recovery
+#BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/WonderMedia/WM8850/recovery/recovery_keys.c
 
 BOARD_KERNEL_CMDLINE := 
 BOARD_KERNEL_BASE := 0x10000000
