@@ -1,0 +1,31 @@
+#!/system/bin/sh
+
+if [ -e /sys/module/lowmemorykiller/parameters/adj ]; then
+	chmod 777 /sys/module/lowmemorykiller/parameters/adj
+	echo "0,1,2,7,8,9" > /sys/module/lowmemorykiller/parameters/adj
+fi
+
+if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
+    chmod 777 /sys/module/lowmemorykiller/parameters/minfree
+	echo "2048,4096,8192,16384,24576,40960" > /sys/module/lowmemorykiller/parameters/minfree
+fi
+
+if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
+	echo "10" > /proc/sys/vm/vfs_cache_pressure
+fi
+
+if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
+	echo "500" > /proc/sys/vm/dirty_expire_centisecs
+fi
+
+if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
+	echo "1000" > /proc/sys/vm/dirty_writeback_centisecs
+fi
+
+if [ -e /proc/sys/vm/dirty_ratio ]; then
+	echo "30" > /proc/sys/vm/dirty_ratio
+fi
+
+if [ -e /proc/sys/vm/dirty_background_ratio ]; then
+	echo "3" > /proc/sys/vm/dirty_background_ratio
+fi

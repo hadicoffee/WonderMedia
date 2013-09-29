@@ -1,0 +1,99 @@
+on post-fs
+
+on post-fs-data
+# mainly do mkdir/insmod/mknod in this section
+
+#
+# MT6620 related device nodes & modules & configuration (begin)
+#
+
+
+# wpa_supplicant control socket for android wifi.c
+    
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    mkdir /data/misc/wpa_supplicant 0770 wifi wifi
+    mkdir /data/misc/p2p_supplicant 0770 wifi wifi
+    chown wifi wifi /data/misc/wifi/wpa_supplicant.conf
+    chown wifi wifi /data/misc/wifi/p2p_supplicant.conf
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
+    chmod 0660 /data/misc/wifi/p2p_supplicant.conf
+
+# wpa_supplicant control socket for android wifi.c
+
+    mkdir /data/misc/dhcp 0771 dhcp dhcp
+    mkdir /data/wifi 0771 wifi wifi
+    chown dhcp dhcp /data/misc/dhcp
+
+    setprop wifi.interface "wlan0"
+    setprop wifi.direct.multicast 1
+
+
+
+
+    start 6620_launcher
+
+
+
+# Load wifi modules
+    insmod /system/modules/3.0.8-default/wlan_drv_5931_power.ko
+    insmod /system/modules/3.0.8-default/wlan_mt5931.ko
+    
+# create char device file for WMT,GPS,BT,FM (if mknod methods is used in init.rc)
+    mknod /dev/wmtWifi c 194 0
+    chmod 0666 /dev/wmtWifi
+
+
+
+# Encrypt phone function
+    setprop vold.post_fs_data_done 1
+
+on boot
+
+
+
+service mnld /system/xbin/mnld
+    class main
+    socket mnld stream 666 system system
+    disabled
+
+
+#wlan JB solution
+service p2p_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
+	-iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -N \
+	-ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -e/data/misc/wifi/entropy.bin -puse_p2p_group_interface=1 -ddd
+	#   we will start as root and wpa_supplicant will switch to user wifi
+	#   after setting up the capabilities required for WEXT
+	#   user wifi
+	#   group wifi inet keystore
+	class main
+	socket wpa_wlan0 dgram 660 wifi wifi
+	disabled
+	oneshot
+
+service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
+	-iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin -ddd
+	#   we will start as root and wpa_supplicant will switch to user wifi
+	#   after setting up the capabilities required for WEXT
+	#   user wifi
+	#   group wifi inet keystore
+	class main
+	socket wpa_wlan0 dgram 660 wifi wifi
+	disabled
+	oneshot
+
+service ap_daemon /system/bin/logwrapper /system/bin/wpa_supplicant \
+	-iap0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -e/data/misc/wifi/entropy.bin -puse_p2p_group_interface=1 -ddd
+	#   we will start as root and wpa_supplicant will switch to user wifi
+	#   after setting up the capabilities required for WEXT
+	#   user wifi
+	#   group wifi inet keystore
+	class main
+	group wifi system inet
+        disabled
+        oneshot
+
+
+# MT6620 related services (End)
+
+

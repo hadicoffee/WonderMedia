@@ -1,0 +1,18 @@
+#!/system/bin/sh
+NUMBER=$1
+APN=$2
+USER=$3
+PASSWD=$4
+	echo "i am usb modem dialer"
+	echo $1
+	echo "\"$USER\" * \"$PASSWD\"">/data/wmtpref/etc/ppp/pap-secrets
+	echo "\"$USER\" * \"$PASSWD\"">/data/wmtpref/etc/ppp/chap-secrets
+
+	
+	sed s/TELENUMBER/$NUMBER/ /data/wmtpref/etc/ppp/chat.conf >/data/wmtpref/etc/ppp/chat_tmp
+	sed s/APN/$APN/ /data/wmtpref/etc/ppp/chat_tmp >/data/wmtpref/etc/ppp/chat.conf
+	
+	sed s/USER/$USER/ /data/wmtpref/etc/ppp/dialer >/data/wmtpref/etc/ppp/dialer_tmp
+	sed s/PASSWD/$PASSWD/ /data/wmtpref/etc/ppp/dialer_tmp >/data/wmtpref/etc/ppp/dialer
+	/data/wmtpref/etc/ppp/dialer
+

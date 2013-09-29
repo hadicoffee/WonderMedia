@@ -1,0 +1,270 @@
+#!/bin/sh
+################################################################################
+#                                                                              #
+# Copyright c 2009  WonderMedia Technologies, Inc.   All Rights Reserved.      #
+#                                                                              #
+# This PROPRIETARY SOFTWARE is the property of WonderMedia Technologies, Inc.  #
+# and may contain trade secrets and/or other confidential information of       #
+# WonderMedia Technologies, Inc. This file shall not be disclosed to any third #
+# party, in whole or in part, without prior written consent of WonderMedia.    #
+#                                                                              #
+# THIS PROPRIETARY SOFTWARE AND ANY RELATED DOCUMENTATION ARE PROVIDED AS IS,  #
+# WITH ALL FAULTS, AND WITHOUT WARRANTY OF ANY KIND EITHER EXPRESS OR IMPLIED, #
+# AND WonderMedia TECHNOLOGIES, INC. DISCLAIMS ALL EXPRESS OR IMPLIED          #
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET       #
+# ENJOYMENT OR NON-INFRINGEMENT.                                               #
+#                                                                              #
+################################################################################
+  
+#  (module, device)
+
+MODULE_PATH="/system/modules/3.0.8-default"
+GSENSOR_LIB="/system/lib/hw/sensors.wmt.so"
+GSENSOR_NAME="mc3230 dmard06 dmard08 dmard10 mma7660 mxc622x"
+SYSCLS_PATH="/sys/class"
+
+#########################################################
+#   according to RO propery variant: ro.wmt.hw.modules  #
+#   insmod corresponding driver modules                 #
+#   item in wmt.hw.modules must be separated by comma   #
+#########################################################
+
+common_modules=`getprop ro.wmt.drv.common`
+add_modules=`getprop ro.wmt.drv.add`
+remove_modules=`getprop ro.wmt.drv.remove`
+load_modules="$common_modules,$add_modules"
+
+echo "common_modules: $common_modules"
+echo "add_modules: $add_modules"
+echo "remove_modules: $remove_modules"
+echo "load_modules: $load_modules"
+
+remove_modules=`echo $remove_modules | sed 's/,/ /g'`
+load_modules=`echo $load_modules | sed 's/,/ /g'`
+
+for ditem in $remove_modules
+do
+    echo "remove $ditem"
+    load_modules=`echo $load_modules | sed ''s/$ditem//g''`
+    echo "load_modules(Current): $load_modules"
+done
+
+
+load_modules=`echo $load_modules | tr -s ' '`
+
+echo "load_modules(End): $load_modules"
+
+
+for item in $load_modules
+do
+    case $item in
+            wifi-button)
+                insmod $MODULE_PATH/wmt_gpio_keys.ko
+                echo "wifi-button branch"
+            ;;
+            usb_net)
+#               insmod $MODULE_PATH/usbnet.ko   
+#               insmod $MODULE_PATH/sr9700.ko 
+                echo "usb_net branch"
+            ;;
+            v4l2_cmos)
+#               insmod $MODULE_PATH/g_wmt_v4l2_cmos.ko
+#               insmod $MODULE_PATH/g_wmt_cmoscam.ko
+                echo "v4l2_cmos branch"
+            ;;
+            s_wmt_ts_*)
+                if [ ! -f /proc/wmtts_config ]; then
+                    insmod $MODULE_PATH/$item.ko
+                    echo "Try to insmod $item.ko"
+                fi
+            ;;
+#################################################
+#            here you can add your own special process    #
+#################################################            
+            
+            *)
+                insmod $MODULE_PATH/$item.ko
+                echo "insmod $item in default branch"    
+            ;;
+        esac
+done
+
+##################### insmod g-sensor driver ###################################
+for sname in $GSENSOR_NAME
+do
+	senko=$MODULE_PATH/s_wmt_gsensor_$sname.ko
+	if [ -f $senko ]; then 
+		insmod $senko
+		if [ -d ${SYSCLS_PATH}/$sname ]; then
+			echo "Probe sensor is $senko"
+			break
+		fi
+	fi
+done
+
+##################### insmod special touch panel driver ###################################
+tp_module=`getprop ro.wmt.tpdrv`
+if [ ! -z "$tp_module" ]; then
+	echo "insmod $tp_module"
+	insmod $MODULE_PATH/$tp_module.ko
+fi
+
+####################### insmod media video encoder ##########################
+#    insmod $MODULE_PATH/g_wmt_ve_com.ko
+#    insmod $MODULE_PATH/g_wmt_ve_h264.ko
+
+####################### insmod v4l2 cmos ##########################
+#   insmod $MODULE_PATH/g_wmt_v4l2_cmos.ko
+#   insmod $MODULE_PATH/g_wmt_cmoscam.ko
+
+######################### insmod kpad driver #################################
+   insmod $MODULE_PATH/kpad.ko
+   
+#############################
+#encrypt chip
+MODEM_TYPE=`cat /system/etc/ppp/ril.modem.type 2>/dev/null`
+echo "Read modem type: $MODEM_TYPE"
+if [ $MODEM_TYPE == "1" ] || [ $MODEM_TYPE == "4" ]; then
+    insmod $MODULE_PATH/s_wmt_alpu.ko
+fi
+
+RIL_MODEM_TYPE_MTK="ril.modem.type=3"
+RIL_MODEM_TYPE_SP="ril.modem.type=7"
+RIL_MODEM_TYPE_MTK_VALUE=`grep $RIL_MODEM_TYPE_MTK /system/default.prop`
+RIL_MODEM_TYPE_SP_VALUE=`grep $RIL_MODEM_TYPE_SP /system/default.prop`
+echo $RIL_MODEM_TYPE_MTK_VALUE
+echo $RIL_MODEM_TYPE_SP_VALUE
+if [ "$RIL_MODEM_TYPE_MTK_VALUE" != "" ] || [ "$RIL_MODEM_TYPE_SP_VALUE" != "" ]; then
+    insmod $MODULE_PATH/s_wmt_alpu.ko
+fi
+############################
+
+      
+    
+#########################wifi device detect###################################
+ar9271_depend_insmod() { 
+        insmod $MODULE_PATH/cfg80211.ko
+        insmod $MODULE_PATH/mac80211.ko
+        insmod $MODULE_PATH/ath.ko
+        insmod $MODULE_PATH/ath9k_hw.ko
+        insmod $MODULE_PATH/ath9k_common.ko        
+}
+ar9271_depend_rmmod() { 
+        /system/bin/rmmod ath9k_common
+        /system/bin/rmmod ath9k_hw
+        /system/bin/rmmod ath
+        /system/bin/rmmod mac80211
+        /system/bin/rmmod cfg80211
+}
+wifi_configed="/data/misc/wifi/wifi_configed"
+
+wifi_drivers="sci9211.ko rda5990.ko  mt7601Usta.ko rt3070sta_rtl8188eu_beta.ko rt3070sta_rtl8188_beta.ko rtl8723vau.ko rt3070sta_ar9271.ko"
+#wifi_prop_name=`getprop persist.sys.wifi.modules_name`
+#if [ -f "$wifi_configed" ]
+wifi_prop_name=`getprop persist.wifi.driver.path`
+if [ ! -z "$wifi_prop_name" ]
+then
+        echo "wifi driver have configured"
+        wifi_driver_name=`cat $wifi_configed`  
+        if [ "$wifi_driver_name" = "rt3070sta_ar9271.ko" ] 
+        then
+                ar9271_depend_insmod
+        fi
+        echo "WIFI EARLY RETURN"
+        return
+fi
+
+for wifi_driver in $wifi_drivers
+do
+        echo "detect $wifi_driver"
+        if [ "$wifi_driver" = "rt3070sta_ar9271.ko" ]
+        then
+                ar9271_depend_insmod
+        fi
+        insmod $MODULE_PATH/$wifi_driver
+        sleep 1
+        wifi_module=`echo "$wifi_driver" | sed 's/\(.*\).ko/\1/'`
+        if [ "$wifi_driver" = "mt7601Usta.ko" ]; then   ##fix the problem: rmmod mt7601Usta module lead to system hangup                                                                                   
+            ifconfig wlan0 up                                                                                                              
+            sleep 1                                                                                                                        
+            ifconfig wlan0 down                                                                                                            
+            sleep 1                                                                                                                        
+        fi        
+        /system/bin/rmmod $wifi_module
+        wifi_name=`cat /proc/wifi_config`  
+        echo "wifi_name:$wifi_name wifi driver $wifi_driver"
+        if [ "$wifi_name" = "$wifi_driver" ]                                           
+        then                                                                       
+                echo "=================================>find $wifi_driver"
+                #cp $MODULE_PATH/$wifi_driver $MODULE_PATH/rt3070sta.ko #modify by rubbitxiao for save space
+                #rm -rf $MODULE_PATH/rt3070sta.ko
+                #ln -s $MODULE_PATH/$wifi_driver /data/misc/wifi/rt3070sta.ko
+                touch "$wifi_configed"
+                echo "$wifi_driver">"$wifi_configed"
+                #setprop persist.sys.wifi.modules_name "$wifi_module"
+                echo "return because of find ok"
+                setprop persist.wifi.driver.path "$MODULE_PATH/$wifi_driver"
+                setprop persist.wifi.driver.name "$wifi_module"
+                setprop persist.wifi.driver.arg ""
+                if [ "$wifi_driver" = "rt3070sta_rtl8188eu_beta.ko" -o "$wifi_driver" = "rt3070sta_rtl8188_beta.ko" ]; then
+                  setprop persist.wifi.driver.arg "ifname=wlan0 if2name=p2p0"
+                fi
+                
+                if [ "$wifi_driver" = "rda5990.ko" ]; then                
+                	setprop persist.sys.bt.initrate "115200"
+                	setprop persist.sys.bt.devpath "/dev/ttyS1"
+                	setprop persist.sys.bt.vender "rda"
+                	setprop persist.sys.bt.workrate "921600"
+                
+                fi
+                if [ "$wifi_driver" = "rtl8723vau.ko" ]; then
+                  mount /dev/block/mtdblock10 /system -o remount -o rw
+                  if [ -f /system/bin/wpa_supplicant ]; then
+                     mv -f /system/bin/wpa_supplicant /system/bin/wpa_supplicant_default
+                  fi
+                  if [ -f /system/bin/hostapd ]; then
+                     mv -f /system/bin/hostapd /system/bin/hostapd_default
+                  fi
+                  cp -rfp /system/etc/firmware/android.hardware.bluetooth.xml /system/etc/permissions/android.hardware.bluetooth.xml
+                  cp -rfp /system/bin/wpa_supplicant_rtl8732as /system/bin/wpa_supplicant
+                  cp -rfp /system/bin/hostapd_rtl8723as /system/bin/hostapd
+                  sed -i 's/wifi.interface=ra0/wifi.interface=wlan0/g' /system/default.prop
+                  mount /dev/block/mtdblock10 /system -o remount -o ro
+                  insmod $MODULE_PATH/rtk_btusb.ko
+                  setprop wifi.interface "wlan0"
+                fi
+                if [ "$wifi_driver" = "rt3070sta_rt5370.ko" -o "$wifi_driver" = "sci9211.ko" ]; then
+                  echo "enter $wifi_driver branch"
+                  mount /dev/block/mtdblock10 /system -o remount -o rw
+                  if [ -f /system/bin/wpa_supplicant_sci ]; then
+                    mv -f /system/bin/wpa_supplicant_sci /system/bin/wpa_supplicant
+                    chmod a+x /system/bin/wpa_supplicant
+                  fi
+                  if [ -f /system/etc/permissions/android.hardware.wifi.direct.xml ]; then
+                        rm /system/etc/permissions/android.hardware.wifi.direct.xml
+                  fi
+                  mount /dev/block/mtdblock10 /system -o remount -o ro
+                fi
+                if [ "$wifi_driver" = "mt7601Usta.ko" ]; then
+                  echo "enter $wifi_driver branch"
+                  mount /dev/block/mtdblock10 /system -o remount -o rw
+                  if [ -f /system/bin/wpa_supplicant_mt7601 ]; then
+                    mv -f /system/bin/wpa_supplicant_mt7601 /system/bin/wpa_supplicant
+                    chmod a+x /system/bin/wpa_supplicant
+                  fi                  
+                  mount /dev/block/mtdblock10 /system -o remount -o ro                                  
+                fi                
+                if [ "$wifi_driver" = "rt3070sta_ar9271.ko" ]; then                
+                    ar9271_depend_insmod
+                fi
+                return #added by rubbitxiao
+        fi   
+        if [ "$wifi_driver" = "rt3070sta_ar9271.ko" ]
+        then
+                if [ "$wifi_name" != "rt3070sta_ar9271.ko" ]
+                 then
+                        ar9271_depend_rmmod
+                fi
+        fi
+done
+#########################wifi device detect end###################################

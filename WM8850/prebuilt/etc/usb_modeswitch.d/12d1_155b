@@ -1,0 +1,12 @@
+########################################################
+# Huawei M173
+
+DefaultVendor= 0x12d1
+DefaultProduct=0x155b
+
+TargetVendor=  0x12d1
+TargetProduct= 0x14a5
+
+CheckSuccess=20
+
+MessageContent="55534243000000000000000000000011060000000100000000000000000000"

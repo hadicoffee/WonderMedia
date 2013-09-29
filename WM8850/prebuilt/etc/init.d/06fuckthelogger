@@ -1,0 +1,4 @@
+#!/system/bin/sh
+#
+
+rm /dev/log/main

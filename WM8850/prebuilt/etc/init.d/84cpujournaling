@@ -1,0 +1,10 @@
+#!/system/bin/sh
+# Remount each file system with noatime and nodiratime flags to save battery and CPU cycles
+# and change journaling mode for data and cache
+#
+busybox mount -o remount,noatime,nodiratime,remount,rw,barrier=0,data=writeback /data;
+busybox mount -o remount,noatime,nodiratime,remount,rw,barrier=0,data=writeback /cache;
+busybox mount -o remount,noatime,nodiratime /dev;
+busybox mount -o remount,noatime,nodiratime /proc;
+busybox mount -o remount,noatime,nodiratime /sys;
+busybox mount -o remount,noatime,nodiratime /system;

@@ -1,7 +1,7 @@
 # mount point    fstype    device
 
-#/emmc        vfat         local
-/sdcard       vfat         /dev/block/mmcblk0p1
+/emmc		datamedia         /dev/null
+/sdcard		vfat         /dev/block/mmcblk0p1
 /system       yaffs2       system
 /data         yaffs2       data
 /cache        yaffs2       cache
@@ -10,4 +10,3 @@
 /recovery     mtd          recovery
 /bootloader   mtd          bootloader
 /radio        mtd          radio
-

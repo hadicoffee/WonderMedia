@@ -1,0 +1,12 @@
+########################################################
+# Vodafone K3770-Z (T-Mobile Rocket 2.0)
+
+DefaultVendor= 0x19d2
+DefaultProduct=0x1175
+
+TargetVendor=  0x19d2
+TargetProduct= 0x1176
+
+MessageContent="55534243080b468600000000000010ff00000000000000000000000000000000"
+
+CheckSuccess=20
