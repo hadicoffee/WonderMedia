@@ -174,7 +174,7 @@ on post-fs
     # create the lost+found directories, so as to enforce our permissions
     mkdir /cache/lost+found 0770 root root
 
-####Jody Begin: modules was moved to system/modules, need insmod after system partition was mounted
+#### INSMOD CM 10
 # MALI-400
     start flat_mem
     insmod /system/lib/modules/ump.ko ump_debug_level=0 ump_backend=1 ump_memory_size=134217728
@@ -197,12 +197,43 @@ on post-fs
 # insmod media video encoder driver module, move to S40modules? --Jody: to be confirmed
     insmod /system/lib/modules/g_wmt_ve_com.ko
     insmod /system/lib/modules/g_wmt_ve_h264.ko
+    
 # insmod camera driver module
     insmod /system/lib/modules/g_wmt_v4l2.ko
     insmod /system/lib/modules/g_wmt_v4l2_cmos.ko
     insmod /system/lib/modules/g_wmt_cmoscam.ko
     chmod 0666 /dev/ump
     chmod 0666 /dev/mali    
+    
+# Insmod untuk AOSP
+    
+ # MALI-400
+ #   start flat_mem
+ #   insmod /system/modules/ump.ko ump_debug_level=0 ump_backend=1 ump_memory_size=134217728
+ #   insmod /system/modules/mali.ko mali_debug_level=0 mali_l2_enable=0
+ #   insmod /system/modules/s_wmt_ts_ft5x0x.ko
+
+# insmod media video driver module
+#    insmod /system/modules/g_wmt_vd_com.ko
+#    insmod /system/modules/g_wmt_lock.ko
+#    insmod /system/modules/g_wmt_vd_jdec.ko
+#    insmod /system/modules/g_wmt_vd_mpeg2.ko
+#    insmod /system/modules/g_wmt_vd_mpeg4.ko
+#    insmod /system/modules/g_wmt_vd_divx.ko
+#    insmod /system/modules/g_wmt_vd_h263.ko
+#    insmod /system/modules/g_wmt_vd_h264.ko
+#    insmod /system/modules/g_wmt_vd_vc1.ko
+#    insmod /system/modules/g_wmt_vd_rv.ko
+#    insmod /system/modules/g_wmt_vd_vpx.ko
+    
+# insmod media video encoder driver module, move to S40modules? --Jody: to be confirmed
+#    insmod /system/modules/g_wmt_ve_com.ko
+#    insmod /system/modules/g_wmt_ve_h264.ko
+    
+# insmod camera driver module
+#    insmod /system/modules/g_wmt_v4l2.ko
+#    insmod /system/modules/g_wmt_v4l2_cmos.ko
+#    insmod /system/modules/g_wmt_cmoscam.ko
 
     mkdir /lib/ 0771 system system
     mkdir /lib/modules 0771 system system
