@@ -13,12 +13,19 @@ int device_handle_key(int key_code, int visible) {
     if (visible) {
         switch (key_code) {
 	    case 114:
-                return HIGHLIGHT_DOWN;
+	    case 113:
+	    case 112:
+	    case 111:
+             	return HIGHLIGHT_DOWN;
 
         case 115:
+        
                 return HIGHLIGHT_UP;
 
             case 116:
+            case 117:
+            case 118:
+            case 119:
             case KEY_2:
             case KEY_POWER:
                 return SELECT_ITEM;
